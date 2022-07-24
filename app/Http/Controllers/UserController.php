@@ -6,9 +6,8 @@ use Exception;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
 use Illuminate\Support\Facades\Hash;
-
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
@@ -49,7 +48,7 @@ class UserController extends Controller
         if ($validator->fails()) {
             $messages = $validator->getMessageBag()->first();
 
-            return response()->json($messages, 403);
+            return response()->json($messages,Response::HTTP_BAD_REQUEST);
         }
 
         $inputs = $request->all();
@@ -68,10 +67,10 @@ class UserController extends Controller
             User::create($user); 
         
         } catch (Exception $e) {
-            return response()->json($e, 500);
+            return response()->json($e, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         
-        return response()->json('User has been added in database with sucessful', 200);
+        return response()->json('User has been added in database with sucessful', Response::HTTP_OK);
     }
 
     /**
