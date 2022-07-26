@@ -11,13 +11,12 @@ use App\Services\ValidationUser;
 
 class RegisterUserTest extends TestCase
 {
-     /**
+    /**
      * A basic feature test example.
      *
-     * @return void
      * @test
      */
-    public function if_user_data_is_added_in_database()
+    public function if_user_data_is_added_in_database_and_return_access_token(): void
     {
         $newUser = User::factory()->make();
 
@@ -27,7 +26,32 @@ class RegisterUserTest extends TestCase
 
         $token = csrf_token();
 
-        $this->post('/api/register', ['name' => $newUser->name, 'email' => $newUser->email, 'password' => $newUser->password, '_token' => $token])
-        ->assertSuccessful();
+        $this->post('/api/register', [
+            'name' => $newUser->name,
+            'email' => $newUser->email, 
+            'password' => $newUser->password, 
+            '_token' => $token
+        ])
+            ->assertOk()
+            ->assertSee('token');
     }
+
+    /**
+     * A basic feature test example.
+     *
+     * @test
+     */
+    public function invalid_user_register(): void 
+    {
+        $token = csrf_token();
+
+        $this->post('/api/register', [
+            'name' => 'kamiya',
+            'email' => 'kamiya', 
+            'password' => '', 
+            '_token' => $token
+        ])
+        ->assertStatus(400);
+    }
+
 }
