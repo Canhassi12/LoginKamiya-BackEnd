@@ -8,36 +8,30 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
+
+
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    
+    public function login(Request $request): Response
     {
-        //
+        $credentials = $request->only('email', 'password');
+        
+        if (!Auth::attempt($credentials, true)) {
+            return response()->json('email or password invalid', Response::HTTP_UNAUTHORIZED);
+        }
+        
+        $response = [
+            "message" => "login successful",
+            "token" => auth()->user()->createToken('AuthToken')->plainTextToken,
+        ];
+
+        return response()->json($response, Response::HTTP_OK);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function register(Request $request): Response
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:55|',
@@ -48,29 +42,33 @@ class UserController extends Controller
         if ($validator->fails()) {
             $messages = $validator->getMessageBag()->first();
 
-            return response()->json($messages,Response::HTTP_BAD_REQUEST);
+            return response()->json($messages, Response::HTTP_BAD_REQUEST);
         }
 
-        $inputs = $request->all();
-
-        $name = $inputs['name'];
-        $email = $inputs['email'];
-        $password = Hash::make($inputs['password']);
-
         try {
+            $inputs = $request->all();
+
             $user = [
-                'name' => $name,
-                'email' => $email,
-                'password' => $password, 
+                'name' => $inputs['name'],
+                'email' => $inputs['email'],
+                'password' => Hash::make($inputs['password']), 
             ];
 
-            User::create($user); 
-        
+            $user = User::create($user); 
+
+            $token = $user->createToken('AuthToken')->plainTextToken;
+
+            $response = [
+                'message' => 'User has been added in database with sucessful',
+                'user' => $user,
+                'token' => $token
+            ];
+
         } catch (Exception $e) {
             return response()->json($e, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         
-        return response()->json('User has been added in database with sucessful', Response::HTTP_OK);
+        return response()->json($response, Response::HTTP_OK);
     }
 
     /**
@@ -81,7 +79,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        // Arthur Roque Nogueira Canhassi romulo dias
+        //
     }
 
     /**
@@ -118,3 +116,4 @@ class UserController extends Controller
         //
     }
 }
+
