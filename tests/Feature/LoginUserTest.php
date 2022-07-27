@@ -19,7 +19,7 @@ class LoginUserTest extends TestCase
 
         $token = csrf_token();
 
-        $response = $this->post('/api/login', [
+        $response = $this->post('/api/auth/login', [
             'email' => $user->email,
             'password' => 'linguica2',
             '_token' => $token
@@ -34,7 +34,7 @@ class LoginUserTest extends TestCase
      */
     public function invalid_user_login(): void
     {    
-        $this->post('/api/login', [
+        $this->post('/api/auth/login', [
             'email' => 'kamiya',
             'password' => 'kamiya',
         ])
