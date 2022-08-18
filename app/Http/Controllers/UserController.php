@@ -5,28 +5,27 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response as HttpResponse;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
-
-
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
-    
     public function login(Request $request): Response
     {
         $credentials = $request->only('email', 'password');
         
         if (!Auth::attempt($credentials, true)) {
-            return response()->json('email or password invalid', Response::HTTP_UNAUTHORIZED);
+            return response()->json('Invalid email or password', Response::HTTP_UNAUTHORIZED);
         }
         
+        $user = User::where('email', $credentials['email'])->get();
+
         $response = [
-            "message" => "login successful",
+            "message" => "Login successful",
             "token" => auth()->user()->createToken('AuthToken')->plainTextToken,
+            "user" => $user,
         ];
 
         return response()->json($response, Response::HTTP_OK);
@@ -76,7 +75,7 @@ class UserController extends Controller
     {
         auth()->user()->tokens()->delete();
 
-        return response()->json('logout successfully', Response::HTTP_NO_CONTENT);
+        return response()->json('Logout successfully', Response::HTTP_NO_CONTENT);
     }
 }
 
