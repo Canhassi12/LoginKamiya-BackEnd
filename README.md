@@ -1,4 +1,4 @@
-# LoginKamiya-BackEnd 🎌🥵
+# LoginKamiya-BackEnd 🎌
 
 ## Run this project steps
 
